@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JYUN 傳送門</title>
+  <style>
+    :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#94a3b8; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, "Apple Color Emoji","Segoe UI Emoji"; background:linear-gradient(135deg,#0b1220,#111827); color:var(--text); }
+    .wrap { min-height:100svh; display:grid; place-items:center; padding:24px; }
+    .card { width:min(680px,92vw); background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:28px; box-shadow:0 10px 30px rgba(0,0,0,.25); backdrop-filter: blur(10px); }
+    h1 { margin:0 0 6px; font-size:28px; letter-spacing:.5px; }
+    p.sub { margin:.25rem 0 1rem; color:var(--muted); }
+    .links { display:grid; gap:12px; margin-top:16px; }
+    .btn { display:flex; align-items:center; gap:10px; padding:14px 16px; border-radius:14px; text-decoration:none; color:var(--text); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); transition:.2s transform,.2s filter,.2s background; }
+    .btn:hover { transform: translateY(-2px); background:rgba(255,255,255,.08); }
+    .btn span { opacity:.9 }
+    .footer { margin-top:18px; color:var(--muted); font-size:12px; }
+    .avatar { width:52px; height:52px; border-radius:14px; background:#1f2937; display:grid; place-items:center; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card">
+      <header style="display:flex; gap:16px; align-items:center;">
+        <div class="avatar">JP</div>
+        <div>
+          <h1>Hi, 我是 JYUN 🐻</h1>
+          <p class="sub">旅行 × 影像 × 日語｜這裡是我的所有連結傳送門</p>
+        </div>
+      </header>
+
+      <section class="links">
+        <a class="btn" href="https://instagram.com/你的帳號" target="_blank" rel="noopener">
+          <span>📷 Instagram</span><span>— 旅途日常與照片</span>
+        </a>
+        <a class="btn" href="https://youtube.com/@你的頻道" target="_blank" rel="noopener">
+          <span>▶️ YouTube</span><span>— Vlog / 開箱 / 教學</span>
+        </a>
+        <a class="btn" href="https://x.com/你的帳號" target="_blank" rel="noopener">
+          <span>𝕏 X / Twitter</span><span>— 碎念與即時更新</span>
+        </a>
+        <a class="btn" href="https://www.notion.so/你的頁面" target="_blank" rel="noopener">
+          <span>📒 Notion</span><span>— 行程與筆記</span>
+        </a>
+        <a class="btn" href="mailto:you@example.com">
+          <span>✉️ Email</span><span>— 聯絡我</span>
+        </a>
+      </section>
+
+      <div class="footer">© <span id="y"></span> JYUN · GitHub Pages</div>
+    </main>
+  </div>
+  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>
