@@ -5,21 +5,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>君君(Jyun) 傳送門</title>
   <style>
+    /* 讓寬度計算穩定、避免左右不等寬 */
+    *, *::before, *::after { box-sizing: border-box; }
+
     :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#94a3b8; }
-    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, "Apple Color Emoji","Segoe UI Emoji"; background:linear-gradient(135deg,#0b1220,#111827); color:var(--text); }
-    .wrap { min-height:100svh; display:grid; place-items:center; padding:24px; }
-    .card { width:min(480px,92vw); background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:28px; box-shadow:0 10px 30px rgba(0,0,0,.25); backdrop-filter: blur(10px); text-align: center; }
-    .avatar img { width:140px; height:140px; border-radius:50%; object-fit:cover; margin-bottom:16px; }
-    h1 { margin:0 0 6px; font-size:28px; }
-    p.sub { margin:.25rem 0 1.5rem; color:var(--muted); }
-    .links { display:grid; gap:12px; margin-top:16px; }
-    .btn { display:flex; justify-content:center; gap:10px; padding:14px 16px; border-radius:14px; text-decoration:none; color:var(--text); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); transition:.2s transform,.2s background; }
-    .btn:hover { transform: translateY(-2px); background:rgba(255,255,255,.08); }
-    .btn span { opacity:.9 }
-    .footer { margin-top:18px; color:var(--muted); font-size:12px; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: linear-gradient(135deg, #0b1220, #111827);
+      color: var(--text);
+    }
+
+    /* 外層容器：置中 + 安全區 */
+    .wrap {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding-block: 24px;
+      padding-left: max(24px, env(safe-area-inset-left));
+      padding-right: max(24px, env(safe-area-inset-right));
+    }
+
+    /* 卡片：寬度 100% + 上限，確保左右等距置中 */
+    .card {
+      width: 100%;
+      max-width: 560px;      /* 想更窄或更寬可改 480~640 */
+      margin-inline: auto;
+
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+    }
+    .avatar img {
+      width: 132px; height: 132px;  /* 桌機尺寸 */
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    h1 { margin: 8px 0 6px; font-size: 28px; letter-spacing: .4px; }
+    p.sub { margin: .25rem 0 1.25rem; color: var(--muted); }
+
+    .links { display: grid; gap: 12px; margin-top: 12px; }
+
+    .btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      transition: transform .2s, background .2s;
+    }
+    .btn:hover { transform: translateY(-2px); background: rgba(255,255,255,.08); }
+    .btn span { opacity: .9; }
+
+    .footer { margin-top: 18px; color: var(--muted); font-size: 12px; }
+
+    /* 手機優化：頭像/字體稍微縮小，間距更緊湊 */
     @media (max-width: 500px) {
-      .avatar img { width:100px; height:100px; }
-      h1 { font-size:24px; }
+      .avatar img { width: 104px; height: 104px; }
+      h1 { font-size: 24px; }
     }
   </style>
 </head>
@@ -29,6 +90,7 @@
       <div class="avatar">
         <img src="profile.png" alt="JYUN 頭像">
       </div>
+
       <h1>Hi, 我是 君君 🐻</h1>
       <p class="sub">窩是阿肥｜這裡是我的所有連結傳送門</p>
 
