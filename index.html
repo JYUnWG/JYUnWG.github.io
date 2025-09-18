@@ -16,7 +16,13 @@
     .btn:hover { transform: translateY(-2px); background:rgba(255,255,255,.08); }
     .btn span { opacity:.9 }
     .footer { margin-top:18px; color:var(--muted); font-size:12px; }
-    .avatar img { width:52px; height:52px; border-radius:14px; object-fit:cover; }
+    .avatar img { width:120px; height:120px; border-radius:50%; object-fit:cover; }
+    header { flex-wrap: wrap; justify-content: center; text-align: center; }
+    header div { margin-top: 8px; }
+    @media (max-width: 500px) {
+      .avatar img { width:90px; height:90px; }
+      h1 { font-size:24px; }
+    }
   </style>
 </head>
 <body>
