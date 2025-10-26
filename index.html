@@ -8,7 +8,12 @@
     /* 讓寬度計算穩定、避免左右不等寬 */
     *, *::before, *::after { box-sizing: border-box; }
 
-    :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#94a3b8; }
+    :root { 
+      --bg:#0f172a; 
+      --card:#111827; 
+      --text:#e5e7eb; 
+      --muted:#94a3b8; 
+    }
 
     body {
       margin: 0;
@@ -30,7 +35,7 @@
     /* 卡片：寬度 100% + 上限，確保左右等距置中 */
     .card {
       width: 100%;
-      max-width: 560px;      /* 想更窄或更寬可改 480~640 */
+      max-width: 560px;
       margin-inline: auto;
 
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
@@ -48,7 +53,7 @@
       margin-bottom: 14px;
     }
     .avatar img {
-      width: 132px; height: 132px;  /* 桌機尺寸 */
+      width: 132px; height: 132px;
       border-radius: 50%;
       object-fit: cover;
       display: block;
@@ -75,9 +80,18 @@
     .btn:hover { transform: translateY(-2px); background: rgba(255,255,255,.08); }
     .btn span { opacity: .9; }
 
+    /* Telegram 特製配色 */
+    .btn[href*="t.me"] {
+      background: rgba(0, 136, 204, 0.15);
+      border-color: rgba(0, 136, 204, 0.3);
+    }
+    .btn[href*="t.me"]:hover {
+      background: rgba(0, 136, 204, 0.25);
+    }
+
     .footer { margin-top: 18px; color: var(--muted); font-size: 12px; }
 
-    /* 手機優化：頭像/字體稍微縮小，間距更緊湊 */
+    /* 手機優化 */
     @media (max-width: 500px) {
       .avatar img { width: 104px; height: 104px; }
       h1 { font-size: 24px; }
@@ -95,8 +109,11 @@
       <p class="sub">窩是君君｜這裡是我的所有連結傳送門</p>
 
       <section class="links">
+        <a class="btn" href="https://t.me/jyunbear" target="_blank" rel="noopener">
+          <span>✈️ Telegram</span><span>— 歡迎私訊聊天</span>
+        </a>
         <a class="btn" href="https://x.com/jyun0134" target="_blank" rel="noopener">
-          <span>𝕏 </span><span>— R15~鎖帳中~可互加 </span>
+          <span>𝕏</span><span>— R15~鎖帳中~可互加</span>
         </a>
         <a class="btn" href="https://www.facebook.com/haruyuki.arita.7906" target="_blank" rel="noopener">
           <span>📘 Facebook</span><span>— 廢文分享</span>
