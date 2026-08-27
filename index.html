@@ -4,109 +4,412 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>君君(Jyun) 傳送門</title>
-  <style>
-    /* 讓寬度計算穩定、避免左右不等寬 */
-    *, *::before, *::after { box-sizing: border-box; }
 
-    :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#94a3b8; }
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+    }
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        "Noto Sans TC",
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji";
+
       background: linear-gradient(135deg, #0b1220, #111827);
       color: var(--text);
     }
 
-    /* 外層容器：置中 + 安全區 */
     .wrap {
       min-height: 100svh;
       display: grid;
       place-items: center;
+
       padding-block: 24px;
       padding-left: max(24px, env(safe-area-inset-left));
       padding-right: max(24px, env(safe-area-inset-right));
     }
 
-    /* 卡片：寬度 100% + 上限，確保左右等距置中 */
     .card {
       width: 100%;
-      max-width: 560px;      /* 想更窄或更寬可改 480~640 */
+      max-width: 560px;
       margin-inline: auto;
 
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border: 1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255, 255, 255, .04),
+          rgba(255, 255, 255, .02)
+        );
+
+      border: 1px solid rgba(255, 255, 255, .08);
       border-radius: 20px;
       padding: 28px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
       backdrop-filter: blur(10px);
+
       text-align: center;
     }
 
+    /* 頭像 */
     .avatar {
       display: grid;
       place-items: center;
       margin-bottom: 14px;
     }
+
     .avatar img {
-      width: 132px; height: 132px;  /* 桌機尺寸 */
+      width: 132px;
+      height: 132px;
       border-radius: 50%;
       object-fit: cover;
       display: block;
+
+      border: 3px solid rgba(255, 255, 255, .12);
     }
 
-    h1 { margin: 8px 0 6px; font-size: 28px; letter-spacing: .4px; }
-    p.sub { margin: .25rem 0 1.25rem; color: var(--muted); }
+    h1 {
+      margin: 8px 0 6px;
+      font-size: 28px;
+      letter-spacing: .4px;
+    }
 
-    .links { display: grid; gap: 12px; margin-top: 12px; }
+    p.sub {
+      margin: .25rem 0 1.25rem;
+      color: var(--muted);
+    }
+
+    /* ================================
+       自我介紹
+       ================================ */
+
+    .about {
+      margin-top: 18px;
+      margin-bottom: 18px;
+
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 14px;
+
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .about summary {
+      padding: 14px 16px;
+
+      cursor: pointer;
+      font-weight: 700;
+      text-align: center;
+
+      list-style: none;
+      user-select: none;
+
+      transition: background .2s;
+    }
+
+    .about summary:hover {
+      background: rgba(255, 255, 255, .05);
+    }
+
+    .about summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .about summary::after {
+      content: " ＋";
+      color: var(--muted);
+    }
+
+    .about[open] summary::after {
+      content: " －";
+    }
+
+    .about-content {
+      padding: 4px 20px 20px;
+      line-height: 1.8;
+      color: #dbe3ee;
+    }
+
+    .about-content h2 {
+      font-size: 17px;
+      margin: 20px 0 8px;
+      color: #fff;
+    }
+
+    .about-content h2:first-child {
+      margin-top: 10px;
+    }
+
+    .about-content p {
+      margin: 6px 0;
+    }
+
+    .about-content ul {
+      margin: 8px 0;
+      padding-left: 22px;
+    }
+
+    .about-content li {
+      margin: 7px 0;
+    }
+
+    .about-content strong {
+      color: #fff;
+    }
+
+    .star {
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    /* ================================
+       傳送門
+       ================================ */
+
+    .links {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
 
     .btn {
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 10px;
+
       padding: 14px 16px;
+
       border-radius: 14px;
+
       text-decoration: none;
       color: var(--text);
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.08);
-      transition: transform .2s, background .2s;
+
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid rgba(255, 255, 255, .08);
+
+      transition:
+        transform .2s,
+        background .2s,
+        border-color .2s;
     }
-    .btn:hover { transform: translateY(-2px); background: rgba(255,255,255,.08); }
-    .btn span { opacity: .9; }
 
-    .footer { margin-top: 18px; color: var(--muted); font-size: 12px; }
+    .btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, .08);
+      border-color: rgba(255, 255, 255, .16);
+    }
 
-    /* 手機優化：頭像/字體稍微縮小，間距更緊湊 */
+    .btn span {
+      opacity: .9;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* 手機 */
     @media (max-width: 500px) {
-      .avatar img { width: 104px; height: 104px; }
-      h1 { font-size: 24px; }
+      .card {
+        padding: 22px 18px;
+      }
+
+      .avatar img {
+        width: 104px;
+        height: 104px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .about-content {
+        padding-inline: 16px;
+      }
+
+      .btn {
+        flex-direction: column;
+        gap: 3px;
+      }
     }
   </style>
 </head>
+
 <body>
+
   <div class="wrap">
+
     <main class="card">
+
+      <!-- 頭像 -->
       <div class="avatar">
         <img src="profile2.png" alt="JYUN 頭像">
       </div>
 
-      <h1>Hi, 我是 君君 </h1>
-      <p class="sub">我是君君｜這裡是我的所有社群軟體的傳送門</p>
+      <h1>Hi, 我是君君 🐯</h1>
+
+      <p class="sub">
+        我是君君｜這裡是我的所有社群軟體的傳送門
+      </p>
+
+
+      <!-- ================================
+           自我介紹
+           ================================ -->
+
+      <details class="about">
+
+        <summary>🐯 關於君君 / About Me</summary>
+
+        <div class="about-content">
+
+          <h2>自介</h2>
+
+          <p>大家好，我是<strong>君君 JYUN</strong>。</p>
+
+          <p>板橋人，中壢工作中。</p>
+
+          <p>
+            輪班作息，所以有時候訊息不小心忽略，
+            純屬正常 😂
+          </p>
+
+          <p>
+            我是一隻<strong>胖胖的白虎 🐯</strong>
+          </p>
+
+          <p>
+            努力未來
+            <span class="star">A BEAUTiful STAR ✨</span>
+          </p>
+
+          <p>
+            夢想是<strong>踏遍日本 47 個都道府縣 🇯🇵</strong>
+          </p>
+
+          <p>我是讚讚魔人（O）👍</p>
+
+          <p>
+            面對自來熟的人，反而會熟得比較快（？）
+          </p>
+
+          <p>
+            如果你願意找我搭話的話，
+            <strong>我會很開心的！</strong>
+          </p>
+
+
+          <h2>情報</h2>
+
+          <ul>
+
+            <li>
+              🍜 <strong>喜歡的食物：</strong>
+              美食都喜歡
+            </li>
+
+            <li>
+              🎵 <strong>休閒活動：</strong>
+              音遊、動畫、電影、音樂會
+            </li>
+
+            <li>
+              📱 <strong>手遊：</strong>
+              激鬥峽谷、世界計畫、Shadowverse
+            </li>
+
+            <li>
+              💻 <strong>PC 遊戲：</strong><br>
+              FF14（繁中）－ 鳳凰<br>
+              ID：W君<br><br>
+
+              英雄聯盟<br>
+              ID：福樂鈣多多#tw2
+            </li>
+
+            <li>
+              🎤 <strong>唱歌：</strong>
+              很喜歡唱歌，日 K、台 K 都 OK！
+            </li>
+
+          </ul>
+
+        </div>
+
+      </details>
+
+
+      <!-- ================================
+           傳送門
+           ================================ -->
 
       <section class="links">
-<a class="btn" href="https://app.notion.com/p/47-37e6d1945e31817f8d81c2ca703ef672" target="_blank" rel="noopener"> <span>🗾 Notion</span><span>— 47都道府縣旅行筆記</span> </a>
-        <a class="btn" href="https://www.facebook.com/haruyuki.arita.7906" target="_blank" rel="noopener">
-          <span>📘 Facebook</span><span>— 廢文分享</span>
+
+        <a
+          class="btn"
+          href="https://app.notion.com/p/47-37e6d1945e31817f8d81c2ca703ef672"
+          target="_blank"
+          rel="noopener"
+        >
+          <span>🗾 Notion</span>
+          <span>— 47 都道府縣旅行筆記</span>
         </a>
-        <a class="btn" href="https://www.plurk.com/chunchun10" target="_blank" rel="noopener">
-          <span>🌀 Plurk</span><span>— 廢文分享</span>
+
+
+        <a
+          class="btn"
+          href="https://www.facebook.com/haruyuki.arita.7906"
+          target="_blank"
+          rel="noopener"
+        >
+          <span>📘 Facebook</span>
+          <span>— 廢文分享</span>
         </a>
+
+
+        <a
+          class="btn"
+          href="https://www.plurk.com/chunchun10"
+          target="_blank"
+          rel="noopener"
+        >
+          <span>🌀 Plurk</span>
+          <span>— 廢文分享</span>
+        </a>
+
       </section>
 
-      <div class="footer">© <span id="y"></span> JYUN · GitHub Pages</div>
+
+      <div class="footer">
+        © <span id="y"></span> JYUN · GitHub Pages
+      </div>
+
     </main>
+
   </div>
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+
+
+  <script>
+    document.getElementById("y").textContent =
+      new Date().getFullYear();
+  </script>
+
 </body>
 </html>
