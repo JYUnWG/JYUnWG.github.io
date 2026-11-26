@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="模糊馬賽克" />
+  <meta name="theme-color" content="#000000" />
+  <title>模糊 / 馬賽克 小工具</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --bg: #000;
+      --panel: #121212;
+      --line: rgba(255, 255, 255, .1);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100svh;
+      overflow: hidden;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    /* ---------- 上方列 ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px max(10px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
+      padding-top: max(8px, env(safe-area-inset-top));
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .topbar .home {
+      text-decoration: none;
+      color: var(--text);
+      font-size: 22px;
+      padding: 4px 8px;
+    }
+
+    .topbar .title {
+      flex: 1;
+      font-weight: 700;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 19px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .icon-btn:disabled { opacity: .35; cursor: default; }
+
+    .save-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #00131d;
+      font-weight: 700;
+    }
+
+    .save-btn:disabled { opacity: .35; cursor: default; }
+
+    /* ---------- 畫布區 ---------- */
+    .stage {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      line-height: 0;
+      display: none;
+    }
+
+    .canvas-wrap.show { display: block; }
+
+    #result, #overlay {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    #result { touch-action: pinch-zoom; }
+
+    #overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .stage.pan #result { touch-action: auto; cursor: grab; }
+    .stage:not(.pan) #result { cursor: none; }
+
+    /* 空白狀態 */
+    .empty {
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+      padding: 28px 20px;
+      border: 2px dashed rgba(255, 255, 255, .18);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .empty.drag { border-color: var(--accent); background: rgba(56, 189, 248, .08); }
+
+    .empty h1 { font-size: 22px; margin: 4px 0 8px; }
+    .empty p { color: var(--muted); margin: 6px 0 18px; line-height: 1.6; font-size: 14px; }
+
+    .empty .row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    .big-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-radius: 14px;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+    }
+
+    .big-btn.alt { background: rgba(255, 255, 255, .08); color: var(--text); border: 1px solid var(--line); }
+
+    .hint { color: var(--muted); font-size: 12px; margin-top: 14px; }
+
+    /* ---------- 底部工具 ---------- */
+    .panel {
+      background: var(--panel);
+      border-top: 1px solid var(--line);
+      padding: 8px max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    }
+
+    .row1 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      max-width: 620px;
+      margin: 0 auto 8px;
+    }
+
+    .history { display: flex; gap: 6px; }
+    .history .icon-btn { width: 36px; height: 36px; font-size: 17px; }
+
+    .sliders {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 2px 10px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 620px;
+      margin: 0 auto 6px;
+    }
+
+    .sliders output { min-width: 3.2em; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    .tools {
+      display: flex;
+      justify-content: space-around;
+      gap: 4px;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .tool {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 2px;
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tool .ico { font-size: 21px; line-height: 1.1; filter: grayscale(1); opacity: .8; }
+
+    .tool.active { color: #fff; background: rgba(56, 189, 248, .16); }
+    .tool.active .ico { filter: none; opacity: 1; }
+
+    .seg { display: flex; gap: 4px; }
+
+    .seg button {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .seg button.active { color: #fff; border-color: var(--accent); background: rgba(56, 189, 248, .14); }
+
+    .disabled-ui { opacity: .4; pointer-events: none; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(220px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      background: rgba(30, 30, 30, .95);
+      border: 1px solid var(--line);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity .25s;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <a class="home" href="../" aria-label="回首頁">←</a>
+    <div class="title">模糊 / 馬賽克</div>
+    <button class="icon-btn" id="btnCamera" title="拍照">📷</button>
+    <button class="icon-btn" id="btnOpen" title="開啟圖片">🖼️</button>
+    <button class="save-btn" id="btnSave" disabled>儲存</button>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <div class="empty" id="empty">
+      <h1>選一張圖片開始</h1>
+      <p>
+        用手指或滑鼠在圖片上塗抹，<br>
+        就能把名字、臉、個資等加上模糊或馬賽克。<br>
+        圖片只在你的裝置上處理，不會上傳到任何地方。
+      </p>
+      <div class="row">
+        <button class="big-btn" id="btnOpen2">🖼️ 選擇圖片</button>
+        <button class="big-btn alt" id="btnCamera2">📷 拍照</button>
+      </div>
+      <div class="hint">電腦版也可以直接拖曳圖片進來，或按 Ctrl/⌘ + V 貼上</div>
+    </div>
+
+    <div class="canvas-wrap" id="wrap">
+      <canvas id="result"></canvas>
+      <canvas id="overlay"></canvas>
+    </div>
+
+  </main>
+
+  <footer class="panel disabled-ui" id="panel">
+
+    <div class="row1">
+      <div class="history">
+        <button class="icon-btn" id="btnUndo" title="復原" disabled>↶</button>
+        <button class="icon-btn" id="btnRedo" title="重做" disabled>↷</button>
+        <button class="icon-btn" id="btnReset" title="全部重來">⟲</button>
+      </div>
+      <div class="seg" id="shapeSeg">
+        <button data-shape="brush" class="active">筆刷</button>
+        <button data-shape="rect">框選</button>
+        <button data-shape="all">整張</button>
+      </div>
+    </div>
+
+    <div class="sliders">
+      <label for="size">筆刷大小</label>
+      <input type="range" id="size" min="6" max="150" value="40" />
+      <output id="sizeOut">40</output>
+
+      <label for="strength">強度</label>
+      <input type="range" id="strength" min="1" max="100" value="50" />
+      <output id="strengthOut">50</output>
+
+      <label for="zoom">放大</label>
+      <input type="range" id="zoom" min="100" max="500" step="10" value="100" />
+      <output id="zoomOut">100%</output>
+    </div>
+
+    <div class="tools" id="tools">
+      <button class="tool active" data-tool="blur"><span class="ico">💧</span>模糊</button>
+      <button class="tool" data-tool="mosaic"><span class="ico">🧩</span>馬賽克</button>
+      <button class="tool" data-tool="black"><span class="ico">⬛</span>塗黑</button>
+      <button class="tool" data-tool="erase"><span class="ico">🩹</span>橡皮擦</button>
+      <button class="tool" data-tool="pan"><span class="ico">✋</span>移動</button>
+    </div>
+
+  </footer>
+
+  <input type="file" id="fileInput" accept="image/*" hidden />
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden />
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (() => {
+    "use strict";
+
+    // 最長邊上限（避免手機記憶體不足）
+    const MAX_SIDE = 4096;
+    const MAX_HISTORY = 30;
+
+    const $ = (id) => document.getElementById(id);
+    const stage = $("stage");
+    const wrap = $("wrap");
+    const empty = $("empty");
+    const panel = $("panel");
+    const result = $("result");
+    const overlay = $("overlay");
+    const rctx = result.getContext("2d");
+    const octx = overlay.getContext("2d");
+
+    const sizeEl = $("size"), strengthEl = $("strength"), zoomEl = $("zoom");
+
+    // 離屏畫布
+    const orig = document.createElement("canvas");
+    const blurC = document.createElement("canvas");
+    const mosaicC = document.createElement("canvas");
+    const blackC = document.createElement("canvas");
+    const before = document.createElement("canvas");
+
+    let W = 0, H = 0;
+    let tool = "blur";
+    let shape = "brush";
+    let loaded = false;
+    let fileName = "image";
+
+    const undoStack = [];
+    const redoStack = [];
+
+    // ---------- 工具 ----------
+    const supportsFilter = (() => {
+      try {
+        const c = document.createElement("canvas").getContext("2d");
+        if (!("filter" in c)) return false;
+        c.filter = "blur(2px)";
+        return c.filter === "blur(2px)";
+      } catch (e) { return false; }
+    })();
+
+    function toast(msg) {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => t.classList.remove("show"), 1800);
+    }
+
+    function makeCanvas(w, h) {
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(w));
+      c.height = Math.max(1, Math.round(h));
+      return c;
+    }
+
+    // ---------- 產生效果圖 ----------
+    function buildEffects() {
+      if (!loaded) return;
+      const s = Number(strengthEl.value);
+      const maxDim = Math.max(W, H);
+
+      // 模糊
+      const radius = Math.max(2, (s / 100) * maxDim * 0.03);
+      const bctx = blurC.getContext("2d");
+      bctx.clearRect(0, 0, W, H);
+      if (supportsFilter) {
+        bctx.filter = "none";
+        bctx.drawImage(orig, 0, 0);
+        bctx.filter = `blur(${radius}px)`;
+        bctx.drawImage(orig, 0, 0);
+        bctx.filter = "none";
+      } else {
+        // 縮小再放大的備用模糊（舊版 Safari）
+        let src = orig;
+        let w = W, h = H;
+        const target = Math.max(1, radius / 2);
+        const steps = [];
+        while (W / w < target && w > 2 && h > 2) {
+          w = Math.max(1, w / 2); h = Math.max(1, h / 2);
+          const c = makeCanvas(w, h);
+          const cx = c.getContext("2d");
+          cx.imageSmoothingQuality = "high";
+          cx.drawImage(src, 0, 0, c.width, c.height);
+          steps.push(c);
+          src = c;
+        }
+        for (let i = steps.length - 2; i >= 0; i--) {
+          const c = steps[i];
+          const cx = c.getContext("2d");
+          cx.clearRect(0, 0, c.width, c.height);
+          cx.drawImage(src, 0, 0, c.width, c.height);
+          src = c;
+        }
+        bctx.imageSmoothingQuality = "high";
+        bctx.drawImage(src, 0, 0, W, H);
+      }
+
+      // 馬賽克
+      const block = Math.max(4, Math.round((s / 100) * maxDim * 0.045));
+      const small = makeCanvas(Math.ceil(W / block), Math.ceil(H / block));
+      const sctx = small.getContext("2d");
+      sctx.imageSmoothingEnabled = true;
+      sctx.imageSmoothingQuality = "high";
+      sctx.drawImage(orig, 0, 0, W / block, H / block);
+      const mctx = mosaicC.getContext("2d");
+      mctx.imageSmoothingEnabled = false;
+      mctx.clearRect(0, 0, W, H);
+      mctx.drawImage(small, 0, 0, W / block, H / block, 0, 0, W, H);
+    }
+
+    // ---------- 載入圖片 ----------
+    function loadFile(file) {
+      if (!file || !file.type.startsWith("image/")) {
+        if (file) toast("這不是圖片檔喔");
+        return;
+      }
+      fileName = (file.name || "image").replace(/\.[^.]+$/, "") || "image";
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        setImage(img);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        toast("無法讀取這張圖片");
+      };
+      img.src = url;
+    }
+
+    function setImage(img) {
+      let w = img.naturalWidth, h = img.naturalHeight;
+      const scale = Math.min(1, MAX_SIDE / Math.max(w, h));
+      W = Math.round(w * scale);
+      H = Math.round(h * scale);
+
+      for (const c of [orig, blurC, mosaicC, blackC, before, result]) {
+        c.width = W; c.height = H;
+      }
+      const ox = orig.getContext("2d");
+      ox.imageSmoothingQuality = "high";
+      ox.drawImage(img, 0, 0, W, H);
+      rctx.drawImage(orig, 0, 0);
+
+      const kx = blackC.getContext("2d");
+      kx.fillStyle = "#000";
+      kx.fillRect(0, 0, W, H);
+
+      loaded = true;
+      undoStack.length = 0;
+      redoStack.length = 0;
+      updateHistoryBtns();
+
+      buildEffects();
+
+      empty.style.display = "none";
+      wrap.classList.add("show");
+      panel.classList.remove("disabled-ui");
+      $("btnSave").disabled = false;
+      zoomEl.value = 100;
+      layout();
+    }
+
+    // ---------- 版面 ----------
+    function layout() {
+      if (!loaded) return;
+      const pad = 24;
+      const availW = stage.clientWidth - pad;
+      const availH = stage.clientHeight - pad;
+      const fit = Math.min(availW / W, availH / H);
+      const z = Number(zoomEl.value) / 100;
+      const cssW = Math.max(10, W * fit * z);
+      const cssH = cssW * H / W;
+      wrap.style.width = cssW + "px";
+      wrap.style.height = cssH + "px";
+      stage.style.placeItems = z > 1 ? "start" : "center";
+      $("zoomOut").textContent = Math.round(z * 100) + "%";
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      overlay.width = Math.round(cssW * dpr);
+      overlay.height = Math.round(cssH * dpr);
+      clearOverlay();
+    }
+
+    window.addEventListener("resize", layout);
+
+    // 螢幕像素 → 圖片像素 的比例
+    function imgPerCss() {
+      const r = result.getBoundingClientRect();
+      return W / r.width;
+    }
+
+    function toImg(e) {
+      const r = result.getBoundingClientRect();
+      return {
+        x: (e.clientX - r.left) * (W / r.width),
+        y: (e.clientY - r.top) * (H / r.height),
+      };
+    }
+
+    function brushRadius() {
+      return (Number(sizeEl.value) / 2) * imgPerCss();
+    }
+
+    function sourceFor(t) {
+      return t === "blur" ? blurC
+        : t === "mosaic" ? mosaicC
+        : t === "black" ? blackC
+        : orig; // 橡皮擦 = 還原原圖
+    }
+
+    // ---------- 繪製 ----------
+    let drawing = null; // { id, last, bbox }
+
+    function grow(bbox, x0, y0, x1, y1) {
+      bbox.x0 = Math.min(bbox.x0, x0);
+      bbox.y0 = Math.min(bbox.y0, y0);
+      bbox.x1 = Math.max(bbox.x1, x1);
+      bbox.y1 = Math.max(bbox.y1, y1);
+    }
+
+    function stampSegment(a, b) {
+      const r = brushRadius();
+      const dist = Math.hypot(b.x - a.x, b.y - a.y);
+      const step = Math.max(1, r / 3);
+      const n = Math.max(1, Math.ceil(dist / step));
+
+      rctx.save();
+      rctx.beginPath();
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const x = a.x + (b.x - a.x) * t;
+        const y = a.y + (b.y - a.y) * t;
+        rctx.moveTo(x + r, y);
+        rctx.arc(x, y, r, 0, Math.PI * 2);
+      }
+      rctx.clip();
+      rctx.drawImage(sourceFor(tool), 0, 0);
+      rctx.restore();
+
+      grow(drawing.bbox,
+        Math.min(a.x, b.x) - r, Math.min(a.y, b.y) - r,
+        Math.max(a.x, b.x) + r, Math.max(a.y, b.y) + r);
+    }
+
+    function applyRect(a, b) {
+      const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+      const w = Math.abs(b.x - a.x), h = Math.abs(b.y - a.y);
+      if (w < 2 || h < 2) return false;
+      rctx.save();
+      rctx.beginPath();
+      rctx.rect(x, y, w, h);
+      rctx.clip();
+      rctx.drawImage(sourceFor(tool), 0, 0);
+      rctx.restore();
+      grow(drawing.bbox, x, y, x + w, y + h);
+      return true;
+    }
+
+    function beginStroke() {
+      const bx = before.getContext("2d");
+      bx.clearRect(0, 0, W, H);
+      bx.drawImage(result, 0, 0);
+    }
+
+    function commitStroke(bbox) {
+      const x = Math.max(0, Math.floor(bbox.x0));
+      const y = Math.max(0, Math.floor(bbox.y0));
+      const x1 = Math.min(W, Math.ceil(bbox.x1));
+      const y1 = Math.min(H, Math.ceil(bbox.y1));
+      const w = x1 - x, h = y1 - y;
+      if (w <= 0 || h <= 0) return;
+      undoStack.push({
+        x, y,
+        prev: before.getContext("2d").getImageData(x, y, w, h),
+        next: rctx.getImageData(x, y, w, h),
+      });
+      if (undoStack.length > MAX_HISTORY) undoStack.shift();
+      redoStack.length = 0;
+      updateHistoryBtns();
+    }
+
+    function cancelStroke() {
+      rctx.clearRect(0, 0, W, H);
+      rctx.drawImage(before, 0, 0);
+      drawing = null;
+      clearOverlay();
+    }
+
+    function updateHistoryBtns() {
+      $("btnUndo").disabled = undoStack.length === 0;
+      $("btnRedo").disabled = redoStack.length === 0;
+    }
+
+    function undo() {
+      const s = undoStack.pop();
+      if (!s) return;
+      rctx.putImageData(s.prev, s.x, s.y);
+      redoStack.push(s);
+      updateHistoryBtns();
+    }
+
+    function redo() {
+      const s = redoStack.pop();
+      if (!s) return;
+      rctx.putImageData(s.next, s.x, s.y);
+      undoStack.push(s);
+      updateHistoryBtns();
+    }
+
+    // ---------- 預覽層 ----------
+    function clearOverlay() {
+      octx.setTransform(1, 0, 0, 1, 0, 0);
+      octx.clearRect(0, 0, overlay.width, overlay.height);
+    }
+
+    function cssPoint(e) {
+      const r = result.getBoundingClientRect();
+      const k = overlay.width / r.width;
+      return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k, k };
+    }
+
+    function drawCursor(e) {
+      clearOverlay();
+      if (tool === "pan" || shape !== "brush") return;
+      const p = cssPoint(e);
+      const r = (Number(sizeEl.value) / 2) * p.k;
+      octx.lineWidth = 1.5 * p.k;
+      octx.strokeStyle = "rgba(0,0,0,.7)";
+      octx.beginPath(); octx.arc(p.x, p.y, r + p.k, 0, Math.PI * 2); octx.stroke();
+      octx.strokeStyle = "rgba(255,255,255,.95)";
+      octx.beginPath(); octx.arc(p.x, p.y, r, 0, Math.PI * 2); octx.stroke();
+    }
+
+    function drawRectPreview(a, e) {
+      clearOverlay();
+      const r = result.getBoundingClientRect();
+      const k = overlay.width / r.width;
+      const s = (overlay.width / W);
+      const p = cssPoint(e);
+      const x = a.x * s, y = a.y * s;
+      octx.setLineDash([6 * k, 4 * k]);
+      octx.lineWidth = 2 * k;
+      octx.strokeStyle = "#fff";
+      octx.fillStyle = "rgba(56,189,248,.2)";
+      octx.fillRect(x, y, p.x - x, p.y - y);
+      octx.strokeRect(x, y, p.x - x, p.y - y);
+      octx.setLineDash([]);
+    }
+
+    // ---------- 指標事件 ----------
+    const activePointers = new Set();
+
+    result.addEventListener("pointerdown", (e) => {
+      if (!loaded || tool === "pan") return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      activePointers.add(e.pointerId);
+
+      // 第二根手指 → 取消這筆（讓使用者縮放）
+      if (activePointers.size > 1) {
+        if (drawing) cancelStroke();
+        return;
+      }
+
+      e.preventDefault();
+      try { result.setPointerCapture(e.pointerId); } catch (_) {}
+
+      const p = toImg(e);
+      beginStroke();
+      drawing = { id: e.pointerId, start: p, last: p, bbox: { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity } };
+
+      if (shape === "brush") {
+        stampSegment(p, p);
+        drawCursor(e);
+      }
+    });
+
+    result.addEventListener("pointermove", (e) => {
+      if (!loaded) return;
+      if (!drawing) {
+        if (e.pointerType === "mouse") drawCursor(e);
+        return;
+      }
+      if (e.pointerId !== drawing.id) return;
+      e.preventDefault();
+
+      if (shape === "brush") {
+        const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+        for (const ev of (events.length ? events : [e])) {
+          const p = toImg(ev);
+          stampSegment(drawing.last, p);
+          drawing.last = p;
+        }
+        drawCursor(e);
+      } else if (shape === "rect") {
+        drawRectPreview(drawing.start, e);
+      }
+    });
+
+    function endPointer(e) {
+      activePointers.delete(e.pointerId);
+      if (!drawing || e.pointerId !== drawing.id) return;
+
+      if (shape === "rect") {
+        if (!applyRect(drawing.start, toImg(e))) { drawing = null; clearOverlay(); return; }
+      }
+      commitStroke(drawing.bbox);
+      drawing = null;
+      if (e.pointerType === "mouse") drawCursor(e); else clearOverlay();
+    }
+
+    result.addEventListener("pointerup", endPointer);
+    result.addEventListener("pointercancel", (e) => {
+      activePointers.delete(e.pointerId);
+      if (drawing && e.pointerId === drawing.id) cancelStroke();
+    });
+    result.addEventListener("pointerleave", (e) => {
+      if (!drawing && e.pointerType === "mouse") clearOverlay();
+    });
+
+    // iOS：防止長按跳出選單
+    result.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // ---------- 整張套用 ----------
+    function applyAll() {
+      if (!loaded || tool === "pan") return;
+      beginStroke();
+      drawing = { bbox: { x0: 0, y0: 0, x1: W, y1: H } };
+      rctx.drawImage(sourceFor(tool), 0, 0);
+      commitStroke(drawing.bbox);
+      drawing = null;
+      toast(tool === "erase" ? "已還原整張圖" : "已套用到整張圖");
+    }
+
+    // ---------- UI ----------
+    $("tools").addEventListener("click", (e) => {
+      const b = e.target.closest(".tool");
+      if (!b) return;
+      tool = b.dataset.tool;
+      document.querySelectorAll(".tool").forEach((x) => x.classList.toggle("active", x === b));
+      stage.classList.toggle("pan", tool === "pan");
+      if (tool === "pan") toast("移動模式：可以拖曳 / 捲動畫面");
+    });
+
+    $("shapeSeg").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      if (b.dataset.shape === "all") { applyAll(); return; }
+      shape = b.dataset.shape;
+      document.querySelectorAll("#shapeSeg button").forEach((x) => x.classList.toggle("active", x === b));
+    });
+
+    sizeEl.addEventListener("input", () => { $("sizeOut").textContent = sizeEl.value; });
+
+    let strengthTimer;
+    strengthEl.addEventListener("input", () => {
+      $("strengthOut").textContent = strengthEl.value;
+      clearTimeout(strengthTimer);
+      strengthTimer = setTimeout(buildEffects, 120);
+    });
+
+    zoomEl.addEventListener("input", () => {
+      // 以畫面中心為基準縮放
+      const cx = (stage.scrollLeft + stage.clientWidth / 2) / Math.max(1, stage.scrollWidth);
+      const cy = (stage.scrollTop + stage.clientHeight / 2) / Math.max(1, stage.scrollHeight);
+      layout();
+      stage.scrollLeft = cx * stage.scrollWidth - stage.clientWidth / 2;
+      stage.scrollTop = cy * stage.scrollHeight - stage.clientHeight / 2;
+    });
+
+    $("btnUndo").addEventListener("click", undo);
+    $("btnRedo").addEventListener("click", redo);
+    $("btnReset").addEventListener("click", () => {
+      if (!loaded) return;
+      if (!confirm("確定要清除所有修改，回到原圖嗎？")) return;
+      beginStroke();
+      rctx.drawImage(orig, 0, 0);
+      commitStroke({ x0: 0, y0: 0, x1: W, y1: H });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        e.shiftKey ? redo() : undo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redo();
+      }
+    });
+
+    // 開檔
+    const openPicker = () => $("fileInput").click();
+    const openCamera = () => $("cameraInput").click();
+    $("btnOpen").addEventListener("click", openPicker);
+    $("btnOpen2").addEventListener("click", openPicker);
+    $("btnCamera").addEventListener("click", openCamera);
+    $("btnCamera2").addEventListener("click", openCamera);
+    for (const id of ["fileInput", "cameraInput"]) {
+      $(id).addEventListener("change", (e) => {
+        loadFile(e.target.files[0]);
+        e.target.value = "";
+      });
+    }
+
+    // 拖放
+    ["dragenter", "dragover"].forEach((t) =>
+      window.addEventListener(t, (e) => { e.preventDefault(); empty.classList.add("drag"); }));
+    ["dragleave", "drop"].forEach((t) =>
+      window.addEventListener(t, (e) => { e.preventDefault(); empty.classList.remove("drag"); }));
+    window.addEventListener("drop", (e) => {
+      const f = e.dataTransfer && e.dataTransfer.files[0];
+      if (f) loadFile(f);
+    });
+
+    // 貼上
+    window.addEventListener("paste", (e) => {
+      const items = (e.clipboardData && e.clipboardData.items) || [];
+      for (const it of items) {
+        if (it.type.startsWith("image/")) {
+          loadFile(it.getAsFile());
+          break;
+        }
+      }
+    });
+
+    // 儲存 / 分享
+    $("btnSave").addEventListener("click", () => {
+      if (!loaded) return;
+      result.toBlob(async (blob) => {
+        if (!blob) { toast("儲存失敗"); return; }
+        const name = `${fileName}-blur.png`;
+        const file = new File([blob], name, { type: "image/png" });
+
+        // 手機：叫出分享選單，可直接「儲存影像」到相簿
+        const isTouch = matchMedia("(pointer: coarse)").matches;
+        if (isTouch && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file] });
+            return;
+          } catch (err) {
+            if (err && err.name === "AbortError") return;
+          }
+        }
+
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        toast("已下載圖片");
+      }, "image/png");
+    });
+  })();
+  </script>
+
+</body>
+</html>
