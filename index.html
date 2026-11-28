@@ -219,6 +219,107 @@
       opacity: .9;
     }
 
+    /* 網站小圖示（像書籤列那樣的小 logo） */
+    .site-ico {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 24px;
+      height: 24px;
+      opacity: 1 !important;
+    }
+
+    .site-ico svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .site-ico.fb svg { fill: #0866ff; }
+    .site-ico.tg svg { fill: #26a5e4; }
+
+    .site-ico.plurk {
+      border-radius: 6px;
+      background: #ff574d;
+    }
+
+    .site-ico.plurk svg {
+      width: 18px;
+      height: 18px;
+      fill: #fff;
+    }
+
+    .btn-name {
+      font-weight: 600;
+    }
+
+    .btn-desc {
+      color: var(--muted);
+    }
+
+    /* 「・」項目符號 */
+    .about-content ul.dot-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .about-content ul.dot-list li {
+      position: relative;
+      padding-left: 1.2em;
+    }
+
+    .about-content ul.dot-list li::before {
+      content: "・";
+      position: absolute;
+      left: -.1em;
+      color: var(--muted);
+    }
+
+    /* ================================
+       小工具（可展開）
+       ================================ */
+
+    .tools {
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+
+    .tool-list {
+      display: grid;
+      gap: 8px;
+      padding: 4px 12px 12px;
+    }
+
+    .tool-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      padding: 12px 14px;
+      border-radius: 12px;
+
+      text-decoration: none;
+      color: var(--text);
+
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .08);
+
+      transition: background .2s, border-color .2s;
+    }
+
+    .tool-item:hover {
+      background: rgba(255, 255, 255, .08);
+      border-color: rgba(255, 255, 255, .16);
+    }
+
+    .tool-name {
+      font-weight: 700;
+    }
+
+    .tool-desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
     /* ================================
        加好友（Steam / Discord）
        ================================ */
@@ -373,8 +474,7 @@
       }
 
       .btn {
-        flex-direction: column;
-        gap: 3px;
+        gap: 8px;
       }
     }
   </style>
@@ -391,10 +491,10 @@
         <img src="profile2.png" alt="JYUN 頭像">
       </div>
 
-      <h1>Hi, 我是君君 🐯</h1>
+      <h1>Hi, 我是君君</h1>
 
       <p class="sub">
-        板橋人・中壢工作中｜我的社群傳送門 🚪
+        板橋人｜我的社群傳送門
       </p>
 
 
@@ -404,93 +504,44 @@
 
       <details class="about">
 
-        <summary>🐯 關於君君 / About Me</summary>
+        <summary>關於君君 / About Me</summary>
 
         <div class="about-content">
 
-          <h2>🐯 關於我</h2>
+          <h2>關於我</h2>
 
           <p>
             大家好，我是<strong>君君 JYUN</strong>，
-            一隻<strong>胖胖的白虎</strong>！
+            獸設是一隻<strong>胖胖的白虎</strong>！
           </p>
 
-          <p>板橋人，現在在中壢工作。</p>
+          <p>工作是輪班作息，訊息偶爾會漏看，不是故意的。</p>
+
+          <p>性格比較內向，偶爾不知道要聊什麼比較好。</p>
 
           <p>
-            因為輪班作息，訊息偶爾會漏看，
-            不是故意的 😂
-          </p>
-
-          <p>
-            我是讚讚魔人 👍，
-            遇到自來熟的人反而會熟得特別快（？）
-          </p>
-
-          <p>
-            如果你願意找我聊天，
-            <strong>我會很開心的！</strong>
+            什麼都可以聊，<strong>快來認識我</strong>！<br>
+            又或是給我一個暗示，我會好好的認識你((#
           </p>
 
 
-          <h2>✨ 目標</h2>
+          <h2>興趣</h2>
 
-          <p>
-            努力未來
-            <span class="star">A BEAUTiful STAR ✨</span>
-          </p>
-
-          <p>
-            夢想是<strong>踏遍日本 47 個都道府縣 🇯🇵</strong>
-          </p>
-
-
-          <h2>🎵 興趣</h2>
-
-          <ul>
-
-            <li>
-              🍜 <strong>食物：</strong>
-              美食都喜歡
-            </li>
-
-            <li>
-              🎬 <strong>休閒：</strong>
-              音遊、動畫、電影、音樂會
-            </li>
-
-            <li>
-              🎤 <strong>唱歌：</strong>
-              很愛唱歌，日 K、台 K 都 OK！
-            </li>
-
+          <ul class="dot-list">
+            <li><strong>食物：</strong>美食都喜歡</li>
+            <li><strong>休閒：</strong>音遊、動畫、電影、音樂會</li>
+            <li><strong>唱歌：</strong>很愛唱歌，日 K、台 K 都 OK！</li>
           </ul>
 
 
-          <h2>🎮 遊戲</h2>
+          <h2>遊戲</h2>
 
-          <ul>
-
-            <li>
-              📱 <strong>手遊：</strong>
-              激鬥峽谷、世界計畫、Shadowverse
-            </li>
-
-            <li>
-              ⚔️ <strong>FF14</strong>（繁中・鳳凰）<br>
-              ID：W君
-            </li>
-
-            <li>
-              🏆 <strong>英雄聯盟</strong><br>
-              ID：福樂鈣多多#tw2
-            </li>
-
-            <li>
-              💬 <strong>Steam / Discord：</strong>
-              見最下方，點圖示就能加好友
-            </li>
-
+          <ul class="dot-list">
+            <li><strong>手遊：</strong>激鬥峽谷、世界計畫、Shadowverse</li>
+            <li><strong>FF14</strong>（繁中・鳳凰）<br>ID：W君</li>
+            <li><strong>英雄聯盟</strong><br>ID：福樂鈣多多#tw2</li>
+            <li><strong>激鬥峽谷</strong><br>ID：君君ッ</li>
+            <li><strong>Steam / Discord：</strong>見最下方，點圖示就能加好友</li>
           </ul>
 
         </div>
@@ -504,35 +555,51 @@
 
       <section class="links">
 
-
-        <a
-          class="btn"
-          href="https://www.facebook.com/haruyuki.arita.7906"
-          target="_blank"
-          rel="noopener"
-        >
-          <span>📘 Facebook</span>
-          <span>— 廢文分享</span>
+        <a class="btn" href="https://www.facebook.com/haruyuki.arita.7906" target="_blank" rel="noopener">
+          <span class="site-ico fb" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
+          </span>
+          <span class="btn-name">Facebook</span>
+          <span class="btn-desc">— 廢文分享</span>
         </a>
 
-
-        <a
-          class="btn"
-          href="https://www.plurk.com/chunchun10"
-          target="_blank"
-          rel="noopener"
-        >
-          <span>🌀 Plurk</span>
-          <span>— 廢文分享</span>
+        <a class="btn" href="https://www.plurk.com/chunchun10" target="_blank" rel="noopener">
+          <span class="site-ico plurk" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12.9017 1.9056a10.0652 10.0652 0 00-7.8802 3.707 10.1803 10.1803 0 00-.283.357l.004-.003c.232-.196.473-.345.717-.445l.058-.023c.299-.112.602-.147.9-.088 1.4401.289 2.1901 2.6091 1.6751 5.1832-.515 2.574-2.1 4.4271-3.54 4.139-1.0101-.202-1.6781-1.405-1.8121-2.992v-.005.052c-.003.132-.003.266 0 .4v.073l.002.059c.005.149.013.296.024.443.005.067.012.134.019.2a10.0322 10.0322 0 00.961 3.4431c.06.126.03.276-.078.363l-.277.226a.906.906 0 00-.29.97c0 .006.003.01.006.017a.955.955 0 00.059.142l.05-.039.23-.174a.2612.2612 0 11.316.416l-.245.186-.037.028 1.177 1.4481a.91.91 0 001.275.131l.258-.21a.298.298 0 01.374 0 10.0502 10.0502 0 006.5272 2.181 10.0422 10.0422 0 005.5722-1.855.298.298 0 01.38.025l.163.156a.909.909 0 001.179.059l-.004-.004-.21-.197a.262.262 0 01.358-.382l.225.21 1.26-1.326a.91.91 0 00-.033-1.282l-.263-.25a.297.297 0 01-.054-.36 10.0602 10.0602 0 001.103-6.6712c.301-.278.853-.824 1.0691-1.292.231-.502.29-1.02-.323-.792-.476.177-.842.291-1.286.19-1.417-3.5932-4.8472-6.1932-8.8513-6.4002a9.7102 9.7102 0 00-.473-.014zM2.2645 6.2466a1.228 1.228 0 00-1.082 1.7641 1.23 1.23 0 10.754 2.236c.177-.124.306-.289.395-.47.186.342.46.627.778.823a5.5901 5.5901 0 00.017.6001c.102 1.228.62 2.16 1.401 2.316 1.114.223 2.34-1.21 2.738-3.2.3991-1.99-.181-3.7841-1.295-4.0071-.434-.087-.885.08-1.298.432-.45.383-.854.988-1.14 1.73-.01-.002-.02-.003-.03-.007-.14-.04-.215-.131-.312-.152a1.23 1.23 0 00-.926-2.065zm2.862 1.2441c.054 0 .107.004.16.015.726.143 1.104 1.312.844 2.608-.259 1.2981-1.058 2.2301-1.783 2.0851-.493-.098-.824-.67-.905-1.433.181.07.37.113.56.122.527.024.871-.154 1.14-.513.346-.465.084-1.753-.374-1.92-.356-.13-.567.027-.884.05.16-.298.351-.544.557-.72.219-.185.453-.292.686-.295z"/></svg>
+          </span>
+          <span class="btn-name">Plurk</span>
+          <span class="btn-desc">— 廢文分享</span>
         </a>
 
-
-        <a class="btn" href="blur/">
-          <span>🫥 模糊 / 馬賽克小工具</span>
-          <span>— 圖片打碼</span>
+        <a class="btn" href="https://t.me/Jyunwg134" target="_blank" rel="noopener">
+          <span class="site-ico tg" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          </span>
+          <span class="btn-name">Telegram</span>
+          <span class="btn-desc">— 找我聊天</span>
         </a>
 
       </section>
+
+
+      <!-- ================================
+           小工具（之後新增的工具都放這裡）
+           ================================ -->
+
+      <details class="about tools">
+
+        <summary>小工具</summary>
+
+        <div class="tool-list">
+
+          <a class="tool-item" href="blur/">
+            <span class="tool-name">模糊 / 馬賽克</span>
+            <span class="tool-desc">圖片打碼，名字、臉、個資一抹就看不見</span>
+          </a>
+
+        </div>
+
+      </details>
 
 
       <!-- ================================
@@ -541,7 +608,7 @@
 
       <section class="friends">
 
-        <p class="friends-title">🎮 一起玩！加好友</p>
+        <p class="friends-title">一起玩！加好友</p>
 
         <div class="friend-row">
 
