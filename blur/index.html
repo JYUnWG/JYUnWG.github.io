@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="模糊馬賽克" />
@@ -123,7 +123,10 @@
       -webkit-touch-callout: none;
     }
 
-    #result { touch-action: pinch-zoom; }
+    /* 整頁不縮放、不雙擊放大；畫布區由程式自己處理縮放 */
+    html, body, button, input, label, a { touch-action: manipulation; }
+    .stage, #result { touch-action: none; }
+    .stage { overscroll-behavior: contain; }
 
     #overlay {
       position: absolute;
@@ -133,7 +136,8 @@
       pointer-events: none;
     }
 
-    .stage.pan #result { touch-action: auto; cursor: grab; }
+    .stage.pan #result { cursor: grab; }
+    .stage.pan.grabbing #result { cursor: grabbing; }
     .stage:not(.pan) #result { cursor: none; }
 
     /* 空白狀態 */
@@ -285,7 +289,7 @@
         <button class="big-btn" id="btnOpen2">🖼️ 選擇圖片</button>
         <button class="big-btn alt" id="btnCamera2">📷 拍照</button>
       </div>
-      <div class="hint">電腦版也可以直接拖曳圖片進來，或按 Ctrl/⌘ + V 貼上</div>
+      <div class="hint">兩指可以縮放圖片；電腦版可拖曳圖片進來、Ctrl/⌘ + V 貼上，Ctrl/⌘ + 滾輪縮放</div>
     </div>
 
     <div class="canvas-wrap" id="wrap">
@@ -320,7 +324,7 @@
       <output id="strengthOut">50</output>
 
       <label for="zoom">放大</label>
-      <input type="range" id="zoom" min="100" max="500" step="10" value="100" />
+      <input type="range" id="zoom" min="100" max="800" step="10" value="100" />
       <output id="zoomOut">100%</output>
     </div>
 
@@ -695,19 +699,112 @@
       octx.setLineDash([]);
     }
 
-    // ---------- 指標事件 ----------
-    const activePointers = new Set();
+    // ---------- 縮放 / 移動（只縮放圖片，不縮放整頁） ----------
+    const ZMIN = 100, ZMAX = 800;
+    const pointers = new Map(); // pointerId -> {x, y}
+    let pinch = null;           // { dist, zoom }
+    let panDrag = null;         // { x, y }
 
+    // 以螢幕上某一點為中心縮放
+    function zoomAt(z, cx, cy) {
+      z = Math.min(ZMAX, Math.max(ZMIN, z));
+      const r0 = wrap.getBoundingClientRect();
+      const fx = (cx - r0.left) / r0.width;
+      const fy = (cy - r0.top) / r0.height;
+      zoomEl.value = z;
+      layout();
+      const r1 = wrap.getBoundingClientRect();
+      stage.scrollLeft += (r1.left + fx * r1.width) - cx;
+      stage.scrollTop += (r1.top + fy * r1.height) - cy;
+    }
+
+    function pinchInfo() {
+      const [a, b] = [...pointers.values()];
+      return {
+        dist: Math.hypot(a.x - b.x, a.y - b.y),
+        mx: (a.x + b.x) / 2,
+        my: (a.y + b.y) / 2,
+      };
+    }
+
+    // capture 階段：比畫圖的事件先處理
+    stage.addEventListener("pointerdown", (e) => {
+      if (!loaded) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 2) {
+        // 第二根手指 → 取消正在畫的這筆，開始兩指縮放
+        if (drawing) cancelStroke();
+        panDrag = null;
+        const info = pinchInfo();
+        pinch = { dist: info.dist, zoom: Number(zoomEl.value), mx: info.mx, my: info.my };
+      } else if (pointers.size === 1 && tool === "pan") {
+        panDrag = { x: e.clientX, y: e.clientY };
+        stage.classList.add("grabbing");
+        try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+    }, true);
+
+    stage.addEventListener("pointermove", (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch && pointers.size >= 2) {
+        e.preventDefault();
+        const info = pinchInfo();
+        // 兩指移動 = 拖曳畫面
+        stage.scrollLeft -= info.mx - pinch.mx;
+        stage.scrollTop -= info.my - pinch.my;
+        pinch.mx = info.mx; pinch.my = info.my;
+        zoomAt(pinch.zoom * info.dist / Math.max(1, pinch.dist), info.mx, info.my);
+      } else if (panDrag) {
+        e.preventDefault();
+        stage.scrollLeft -= e.clientX - panDrag.x;
+        stage.scrollTop -= e.clientY - panDrag.y;
+        panDrag = { x: e.clientX, y: e.clientY };
+      }
+    }, true);
+
+    function releasePointer(e) {
+      pointers.delete(e.pointerId);
+      if (pointers.size < 2) pinch = null;
+      if (pointers.size === 0) { panDrag = null; stage.classList.remove("grabbing"); }
+    }
+    stage.addEventListener("pointerup", releasePointer, true);
+    stage.addEventListener("pointercancel", releasePointer, true);
+
+    // 電腦：Ctrl / ⌘ + 滾輪 或觸控板捏合 → 縮放圖片
+    stage.addEventListener("wheel", (e) => {
+      if (!loaded || !(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      zoomAt(Number(zoomEl.value) * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
+    }, { passive: false });
+
+    // iOS Safari 會忽略 user-scalable=no，另外擋掉整頁捏合縮放
+    ["gesturestart", "gesturechange", "gestureend"].forEach((t) =>
+      document.addEventListener(t, (e) => e.preventDefault(), { passive: false }));
+
+    // 擋掉快速連點按鈕時的「雙擊放大」
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd < 350 && !e.target.closest("input")) {
+        e.preventDefault();
+        // 被擋掉的第二下仍然要算一次按鍵（例如連按復原）
+        const btn = e.target.closest("button");
+        if (btn && !btn.disabled) btn.click();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
+
+    // 其他兩指以上的觸控（例如在工具列上捏合）也不讓整頁縮放
+    document.addEventListener("touchmove", (e) => {
+      if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+
+    // ---------- 畫圖事件 ----------
     result.addEventListener("pointerdown", (e) => {
       if (!loaded || tool === "pan") return;
       if (e.pointerType === "mouse" && e.button !== 0) return;
-      activePointers.add(e.pointerId);
-
-      // 第二根手指 → 取消這筆（讓使用者縮放）
-      if (activePointers.size > 1) {
-        if (drawing) cancelStroke();
-        return;
-      }
+      if (pointers.size > 1 || pinch) return;
 
       e.preventDefault();
       try { result.setPointerCapture(e.pointerId); } catch (_) {}
@@ -745,7 +842,6 @@
     });
 
     function endPointer(e) {
-      activePointers.delete(e.pointerId);
       if (!drawing || e.pointerId !== drawing.id) return;
 
       if (shape === "rect") {
@@ -758,7 +854,6 @@
 
     result.addEventListener("pointerup", endPointer);
     result.addEventListener("pointercancel", (e) => {
-      activePointers.delete(e.pointerId);
       if (drawing && e.pointerId === drawing.id) cancelStroke();
     });
     result.addEventListener("pointerleave", (e) => {
@@ -786,7 +881,7 @@
       tool = b.dataset.tool;
       document.querySelectorAll(".tool").forEach((x) => x.classList.toggle("active", x === b));
       stage.classList.toggle("pan", tool === "pan");
-      if (tool === "pan") toast("移動模式：可以拖曳 / 捲動畫面");
+      if (tool === "pan") toast("移動模式：單指拖曳畫面，兩指縮放");
     });
 
     $("shapeSeg").addEventListener("click", (e) => {
@@ -797,7 +892,35 @@
       document.querySelectorAll("#shapeSeg button").forEach((x) => x.classList.toggle("active", x === b));
     });
 
-    sizeEl.addEventListener("input", () => { $("sizeOut").textContent = sizeEl.value; });
+    // 拉筆刷大小時，在畫面中央顯示實際大小的圓圈
+    let sizePreviewTimer;
+    function showSizePreview() {
+      if (!loaded) return;
+      const r = result.getBoundingClientRect();
+      const s = stage.getBoundingClientRect();
+      // 取「畫面上看得到的圖片範圍」的中心
+      const cx = (Math.max(r.left, s.left) + Math.min(r.right, s.right)) / 2;
+      const cy = (Math.max(r.top, s.top) + Math.min(r.bottom, s.bottom)) / 2;
+      const k = overlay.width / r.width;
+      const x = (cx - r.left) * k, y = (cy - r.top) * k;
+      const rad = (Number(sizeEl.value) / 2) * k;
+      clearOverlay();
+      octx.fillStyle = "rgba(56,189,248,.25)";
+      octx.beginPath(); octx.arc(x, y, rad, 0, Math.PI * 2); octx.fill();
+      octx.lineWidth = 2 * k;
+      octx.strokeStyle = "rgba(0,0,0,.6)";
+      octx.beginPath(); octx.arc(x, y, rad + k, 0, Math.PI * 2); octx.stroke();
+      octx.strokeStyle = "#fff";
+      octx.beginPath(); octx.arc(x, y, rad, 0, Math.PI * 2); octx.stroke();
+      clearTimeout(sizePreviewTimer);
+      sizePreviewTimer = setTimeout(() => { if (!drawing) clearOverlay(); }, 900);
+    }
+
+    sizeEl.addEventListener("input", () => {
+      $("sizeOut").textContent = sizeEl.value;
+      showSizePreview();
+    });
+    sizeEl.addEventListener("pointerdown", showSizePreview);
 
     let strengthTimer;
     strengthEl.addEventListener("input", () => {
