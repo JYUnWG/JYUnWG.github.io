@@ -219,6 +219,116 @@
       opacity: .9;
     }
 
+    /* ================================
+       加好友（Steam / Discord）
+       ================================ */
+
+    .friends {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .friends-title {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: .5px;
+    }
+
+    .friend-row {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .friend {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+
+      padding: 0;
+      background: none;
+      border: 0;
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .friend .logo {
+      display: grid;
+      place-items: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, .12);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .friend .logo svg {
+      width: 30px;
+      height: 30px;
+      fill: #fff;
+    }
+
+    .friend.steam .logo {
+      background: linear-gradient(135deg, #111d2e, #1b2838 45%, #2a475e);
+    }
+
+    .friend.discord .logo {
+      background: #5865f2;
+    }
+
+    .friend:hover .logo {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, .4);
+    }
+
+    .friend .name {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .friend .id {
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: -4px;
+    }
+
+    .copy-hint {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      opacity: .8;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 10px);
+
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: rgba(17, 24, 39, .96);
+      border: 1px solid rgba(255, 255, 255, .14);
+      color: var(--text);
+      font-size: 14px;
+      white-space: nowrap;
+
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
     .footer {
       margin-top: 18px;
       color: var(--muted);
@@ -266,7 +376,7 @@
       <h1>Hi, 我是君君 🐯</h1>
 
       <p class="sub">
-        我是君君｜這裡是我的所有社群軟體的傳送門
+        板橋人・中壢工作中｜我的社群傳送門 🚪
       </p>
 
 
@@ -280,20 +390,32 @@
 
         <div class="about-content">
 
-          <h2>自介</h2>
-
-          <p>大家好，我是<strong>君君 JYUN</strong>。</p>
-
-          <p>板橋人，中壢工作中。</p>
+          <h2>🐯 關於我</h2>
 
           <p>
-            輪班作息，所以有時候訊息不小心忽略，
-            純屬正常 😂
+            大家好，我是<strong>君君 JYUN</strong>，
+            一隻<strong>胖胖的白虎</strong>！
+          </p>
+
+          <p>板橋人，現在在中壢工作。</p>
+
+          <p>
+            因為輪班作息，訊息偶爾會漏看，
+            不是故意的 😂
           </p>
 
           <p>
-            我是一隻<strong>胖胖的白虎 🐯</strong>
+            我是讚讚魔人 👍，
+            遇到自來熟的人反而會熟得特別快（？）
           </p>
+
+          <p>
+            如果你願意找我聊天，
+            <strong>我會很開心的！</strong>
+          </p>
+
+
+          <h2>✨ 目標</h2>
 
           <p>
             努力未來
@@ -304,31 +426,32 @@
             夢想是<strong>踏遍日本 47 個都道府縣 🇯🇵</strong>
           </p>
 
-          <p>我是讚讚魔人（O）👍</p>
 
-          <p>
-            面對自來熟的人，反而會熟得比較快（？）
-          </p>
-
-          <p>
-            如果你願意找我搭話的話，
-            <strong>我會很開心的！</strong>
-          </p>
-
-
-          <h2>情報</h2>
+          <h2>🎵 興趣</h2>
 
           <ul>
 
             <li>
-              🍜 <strong>喜歡的食物：</strong>
+              🍜 <strong>食物：</strong>
               美食都喜歡
             </li>
 
             <li>
-              🎵 <strong>休閒活動：</strong>
+              🎬 <strong>休閒：</strong>
               音遊、動畫、電影、音樂會
             </li>
+
+            <li>
+              🎤 <strong>唱歌：</strong>
+              很愛唱歌，日 K、台 K 都 OK！
+            </li>
+
+          </ul>
+
+
+          <h2>🎮 遊戲</h2>
+
+          <ul>
 
             <li>
               📱 <strong>手遊：</strong>
@@ -336,17 +459,18 @@
             </li>
 
             <li>
-              💻 <strong>PC 遊戲：</strong><br>
-              FF14（繁中）－ 鳳凰<br>
-              ID：W君<br><br>
+              ⚔️ <strong>FF14</strong>（繁中・鳳凰）<br>
+              ID：W君
+            </li>
 
-              英雄聯盟<br>
+            <li>
+              🏆 <strong>英雄聯盟</strong><br>
               ID：福樂鈣多多#tw2
             </li>
 
             <li>
-              🎤 <strong>唱歌：</strong>
-              很喜歡唱歌，日 K、台 K 都 OK！
+              💬 <strong>Steam / Discord：</strong>
+              見最下方，點圖示就能複製 ID
             </li>
 
           </ul>
@@ -393,6 +517,39 @@
       </section>
 
 
+      <!-- ================================
+           加好友：點一下複製 ID
+           ================================ -->
+
+      <section class="friends">
+
+        <p class="friends-title">🎮 一起玩！加好友</p>
+
+        <div class="friend-row">
+
+          <button class="friend steam" type="button" data-copy="d00134" data-label="Steam" aria-label="複製 Steam ID d00134">
+            <span class="logo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z"/></svg>
+            </span>
+            <span class="name">Steam</span>
+            <span class="id">d00134</span>
+          </button>
+
+          <button class="friend discord" type="button" data-copy="jyunwg134" data-label="Discord" aria-label="複製 Discord ID jyunwg134">
+            <span class="logo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+            </span>
+            <span class="name">Discord</span>
+            <span class="id">jyunwg134</span>
+          </button>
+
+        </div>
+
+        <p class="copy-hint">點一下圖示就會複製 ID</p>
+
+      </section>
+
+
       <div class="footer">
         © <span id="y"></span> JYUN · GitHub Pages
       </div>
@@ -402,9 +559,52 @@
   </div>
 
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
   <script>
     document.getElementById("y").textContent =
       new Date().getFullYear();
+
+    // 點 Steam / Discord 圖示 → 複製 ID
+    const toastEl = document.getElementById("toast");
+
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toast.t);
+      toast.t = setTimeout(() => toastEl.classList.remove("show"), 2000);
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      }
+      // 舊瀏覽器備用方法
+      return new Promise((resolve, reject) => {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        const ok = document.execCommand("copy");
+        ta.remove();
+        ok ? resolve() : reject();
+      });
+    }
+
+    document.querySelectorAll("[data-copy]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.copy;
+        const label = btn.dataset.label;
+        copyText(id)
+          .then(() => toast(`已複製 ${label} ID：${id}`))
+          .catch(() => toast(`${label} ID：${id}`));
+      });
+    });
   </script>
 
 </body>
