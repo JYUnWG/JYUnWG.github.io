@@ -36,6 +36,7 @@
     .wrap {
       min-height: 100svh;
       display: grid;
+      grid-template-columns: minmax(0, 1fr);
       place-items: center;
 
       padding-block: 24px;
@@ -324,6 +325,69 @@
     }
 
     /* ================================
+       委託作品（橫向滑動）
+       ================================ */
+
+    .works {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .works-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .works-title {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .works-all {
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .works-all:hover { color: var(--text); }
+
+    .works-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, .2) transparent;
+    }
+
+    .works-strip a {
+      flex: none;
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f4f5f7;
+      border: 1px solid rgba(255, 255, 255, .1);
+      scroll-snap-align: start;
+      transition: transform .2s;
+    }
+
+    .works-strip a:hover { transform: translateY(-2px); }
+
+    .works-strip img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* ================================
        加好友（Steam / Discord）
        ================================ */
 
@@ -606,6 +670,23 @@
 
 
       <!-- ================================
+           委託作品（左右滑動，點圖進入相簿）
+           作品清單在 gallery/works.js
+           ================================ -->
+
+      <section class="works">
+
+        <div class="works-head">
+          <p class="works-title">委託作品</p>
+          <a class="works-all" href="gallery/">查看全部 ›</a>
+        </div>
+
+        <div class="works-strip" id="worksStrip"></div>
+
+      </section>
+
+
+      <!-- ================================
            加好友：點圖示開啟個人檔案，點 ID 複製
            ================================ -->
 
@@ -649,6 +730,22 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+
+  <script src="gallery/works.js"></script>
+
+  <script>
+    // 委託作品橫向列表
+    (window.WORKS || []).forEach((w, i) => {
+      const a = document.createElement("a");
+      a.href = `gallery/#${i + 1}`;
+      const img = document.createElement("img");
+      img.src = `gallery/thumb/${w.file}`;
+      img.alt = w.title || `委託作品 ${i + 1}`;
+      img.loading = "lazy";
+      a.append(img);
+      document.getElementById("worksStrip").append(a);
+    });
+  </script>
 
   <script>
     document.getElementById("y").textContent =
