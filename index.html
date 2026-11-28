@@ -187,11 +187,14 @@
       margin-top: 12px;
     }
 
+    /* 圖示｜名稱｜說明 三欄固定寬度：每顆按鈕的欄位都對齊，整組仍置中 */
     .btn {
-      display: flex;
+      display: grid;
+      grid-template-columns: 24px 5.2em 5.8em;
+      text-align: left;
       justify-content: center;
       align-items: center;
-      gap: 10px;
+      column-gap: 12px;
 
       padding: 14px 16px;
 
@@ -474,7 +477,7 @@
       }
 
       .btn {
-        gap: 8px;
+        column-gap: 10px;
       }
     }
   </style>
