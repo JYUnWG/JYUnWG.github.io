@@ -354,6 +354,38 @@
 
     .works-all:hover { color: var(--text); }
 
+    .works-scroller {
+      position: relative;
+    }
+
+    /* 左右箭頭：只在有滑鼠的電腦上顯示 */
+    .works-arrow {
+      display: none;
+      position: absolute;
+      top: 60px;
+      transform: translateY(-50%);
+      z-index: 1;
+
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(17, 24, 39, .88);
+      color: #fff;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+
+    .works-arrow.prev { left: -12px; }
+    .works-arrow.next { right: -12px; }
+    .works-arrow[disabled] { opacity: 0; pointer-events: none; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .works-arrow { display: grid; place-items: center; }
+    }
+
     .works-strip {
       display: flex;
       gap: 10px;
@@ -681,7 +713,11 @@
           <a class="works-all" href="gallery/">查看全部 ›</a>
         </div>
 
-        <div class="works-strip" id="worksStrip"></div>
+        <div class="works-scroller">
+          <button class="works-arrow prev" type="button" aria-label="往左">‹</button>
+          <div class="works-strip" id="worksStrip"></div>
+          <button class="works-arrow next" type="button" aria-label="往右">›</button>
+        </div>
 
       </section>
 
@@ -745,6 +781,31 @@
       a.append(img);
       document.getElementById("worksStrip").append(a);
     });
+
+    // 電腦版：箭頭按鈕、滑鼠滾輪也能左右捲
+    (() => {
+      const strip = document.getElementById("worksStrip");
+      const prev = document.querySelector(".works-arrow.prev");
+      const next = document.querySelector(".works-arrow.next");
+      const update = () => {
+        prev.disabled = strip.scrollLeft <= 2;
+        next.disabled = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 2;
+      };
+      const page = (dir) => strip.scrollBy({ left: dir * strip.clientWidth * 0.8, behavior: "smooth" });
+      prev.addEventListener("click", () => page(-1));
+      next.addEventListener("click", () => page(1));
+      strip.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      strip.addEventListener("wheel", (e) => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // 觸控板本來就能左右滑
+        const max = strip.scrollWidth - strip.clientWidth;
+        const atEnd = (e.deltaY > 0 && strip.scrollLeft >= max - 1) || (e.deltaY < 0 && strip.scrollLeft <= 1);
+        if (max <= 0 || atEnd) return; // 捲到底就讓頁面正常往下捲
+        e.preventDefault();
+        strip.scrollLeft += e.deltaY;
+      }, { passive: false });
+      update();
+    })();
   </script>
 
   <script>
