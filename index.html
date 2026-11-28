@@ -239,6 +239,7 @@
     .friend-row {
       display: flex;
       justify-content: center;
+      align-items: flex-start;
       gap: 28px;
     }
 
@@ -246,15 +247,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 7px;
-
-      padding: 0;
-      background: none;
-      border: 0;
+      gap: 6px;
       color: var(--text);
-      font: inherit;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
     }
 
     .friend .logo {
@@ -293,9 +287,33 @@
     }
 
     .friend .id {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: -3px;
+      padding: 4px 10px;
+
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .1);
+      background: rgba(255, 255, 255, .05);
+      color: var(--text);
+
+      font: inherit;
       font-size: 13px;
       font-weight: 700;
-      margin-top: -4px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .2s, border-color .2s;
+    }
+
+    .friend .id:hover {
+      background: rgba(255, 255, 255, .1);
+      border-color: rgba(255, 255, 255, .2);
+    }
+
+    .friend .copy-ico {
+      font-weight: 400;
+      color: var(--muted);
     }
 
     .copy-hint {
@@ -470,7 +488,7 @@
 
             <li>
               💬 <strong>Steam / Discord：</strong>
-              見最下方，點圖示就能複製 ID
+              見最下方，點圖示就能加好友
             </li>
 
           </ul>
@@ -518,7 +536,7 @@
 
 
       <!-- ================================
-           加好友：點一下複製 ID
+           加好友：點圖示開啟個人檔案，點 ID 複製
            ================================ -->
 
       <section class="friends">
@@ -527,25 +545,25 @@
 
         <div class="friend-row">
 
-          <button class="friend steam" type="button" data-copy="d00134" data-label="Steam" aria-label="複製 Steam ID d00134">
-            <span class="logo">
+          <div class="friend steam">
+            <a class="logo" href="https://steamcommunity.com/profiles/76561198371689860" target="_blank" rel="noopener" aria-label="開啟 Steam 個人檔案加好友">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z"/></svg>
-            </span>
-            <span class="name">Steam</span>
-            <span class="id">d00134</span>
-          </button>
+            </a>
+            <span class="name">Steam 好友代碼</span>
+            <button class="id" type="button" data-copy="411424132" data-label="Steam 好友代碼" aria-label="複製 Steam 好友代碼 411424132">411424132 <span class="copy-ico" aria-hidden="true">⧉</span></button>
+          </div>
 
-          <button class="friend discord" type="button" data-copy="jyunwg134" data-label="Discord" aria-label="複製 Discord ID jyunwg134">
-            <span class="logo">
+          <div class="friend discord">
+            <a class="logo" href="https://discord.com/users/1365516962880290856" target="_blank" rel="noopener" aria-label="開啟 Discord 個人檔案加好友">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
-            </span>
+            </a>
             <span class="name">Discord</span>
-            <span class="id">jyunwg134</span>
-          </button>
+            <button class="id" type="button" data-copy="jyunwg134" data-label="Discord 使用者名稱" aria-label="複製 Discord 使用者名稱 jyunwg134">jyunwg134 <span class="copy-ico" aria-hidden="true">⧉</span></button>
+          </div>
 
         </div>
 
-        <p class="copy-hint">點一下圖示就會複製 ID</p>
+        <p class="copy-hint">點圖示直接加好友・點 ID 可以複製</p>
 
       </section>
 
@@ -566,7 +584,7 @@
     document.getElementById("y").textContent =
       new Date().getFullYear();
 
-    // 點 Steam / Discord 圖示 → 複製 ID
+    // 點 Steam / Discord 的 ID → 複製
     const toastEl = document.getElementById("toast");
 
     function toast(msg) {
@@ -601,8 +619,8 @@
         const id = btn.dataset.copy;
         const label = btn.dataset.label;
         copyText(id)
-          .then(() => toast(`已複製 ${label} ID：${id}`))
-          .catch(() => toast(`${label} ID：${id}`));
+          .then(() => toast(`已複製 ${label}：${id}`))
+          .catch(() => toast(`${label}：${id}`));
       });
     });
   </script>
